@@ -1,0 +1,82 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  # Box base para todas as VMs
+  config.vm.box = "generic/ubuntu2204"
+  
+  config.vm.provider :libvirt do |libvirt|
+    libvirt.memory = 1024
+    libvirt.cpus = 1
+  end
+
+  # Script de provisionamento comum para todas as VMs
+  config.vm.provision "shell", inline: <<-SHELL
+    # Atualizar sistema e instalar git
+    apt-get update
+    apt-get install -y git
+    
+    # Clonar o repositório
+    cd /home/vagrant
+    git clone https://github.com/RafaMazoliniF/Plantractor.git
+    
+    # Alterar proprietário do diretório clonado
+    chown -R vagrant:vagrant /home/vagrant/Plantractor
+  SHELL
+
+  # VM 1
+  config.vm.define "vm1" do |vm1|
+    vm1.vm.hostname = "vm1"
+    vm1.vm.network "private_network", 
+                   ip: "10.0.1.10",
+                   type: "dhcp",
+                   libvirt__network_name: "vagrant-private-network",
+                   libvirt__dhcp_enabled: false,
+                   libvirt__forward_mode: "nat"
+    
+    vm1.vm.provider :libvirt do |v|
+      v.memory = 1024
+      v.cpus = 1
+    end
+  end
+
+  # VM 2
+  config.vm.define "vm2" do |vm2|
+    vm2.vm.hostname = "vm2"
+    vm2.vm.network "private_network", 
+                   ip: "10.0.1.20",
+                   type: "dhcp",
+                   libvirt__network_name: "vagrant-private-network",
+                   libvirt__dhcp_enabled: false,
+                   libvirt__forward_mode: "nat"
+    
+    vm2.vm.provider :libvirt do |v|
+      v.memory = 1024
+      v.cpus = 1
+    end
+
+    config.vm.provision "shell", inline: <<-SHELL
+      apt-get install -y python3 python3-pip
+    SHELL
+  end
+
+  # VM 3
+  config.vm.define "vm3" do |vm3|
+    vm3.vm.hostname = "vm3"
+    vm3.vm.network "private_network", 
+                   ip: "10.0.1.30",
+                   type: "dhcp",
+                   libvirt__network_name: "vagrant-private-network",
+                   libvirt__dhcp_enabled: false,
+                   libvirt__forward_mode: "nat"
+    
+    vm3.vm.provider :libvirt do |v|
+      v.memory = 1024
+      v.cpus = 1
+    end
+
+    config.vm.provision "shell", inline: <<-SHELL
+      apt-get install -y python3 python3-pip
+    SHELL
+  end
+end
