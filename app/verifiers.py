@@ -1,11 +1,21 @@
 import re
 
-def isEmailValid(email):
-    if not email or not isinstance(email, str):
+def isUsernameValid(username):
+    if not username or not isinstance(username, str):
         return False
     
-    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    return bool(re.match(pattern, email.strip()))
+    username = username.strip()
+    
+    if len(username) < 3 or len(username) > 30:
+        return False
+    
+    if not username.replace('_', '').isalnum():
+        return False
+    
+    if username[0].isdigit():
+        return False
+    
+    return True
 
 def isPasswordValid(password):
     if not password or not isinstance(password, str):
