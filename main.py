@@ -37,6 +37,7 @@ def execute_query(query, params=None, fetchone=True):
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
+    #logged_in = 'username' in session
     return render_template('index.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -79,7 +80,7 @@ def login():
     username = request.form.get('username', '')
     password = request.form.get('password', '')
 
-    print(username, password)
+    #print(username, password)
     if request.method == 'POST':
         user_response = execute_query("SELECT id_user, username, password FROM users WHERE username=?", (username,))
 
@@ -96,52 +97,52 @@ def login():
         else:
             error_username = 'Usuário não encontrado'
 
-    print(error_password, error_username)
+    #print(error_password, error_username)
     return render_template('login.html', error_username=error_username, error_password=error_password, error=error, username=username)
 
 @app.route('/profile')
 def profile():
-    con = sqlite3.connect(DB_PATH)
-    c = con.cursor()
-
-    error = None
+    if 'username' not in session:
+        return redirect(url_for('login'))
 
     username = session['username']
-    plants_json = os.path.join(BASE_DIR, 'plantas.json') 
-
-    with open(plants_json, 'r', encoding='utf-8') as file:
-        plantas = json.load(file)
 
     user_response = execute_query("SELECT * FROM users WHERE username=?", (username,))
     
     if user_response:
-        return render_template('plantas.html', plantas=plantas)
+        return render_template('perfil.html', username=username)
     else:
-        error = 'Erro interno do servidor!'
+        return "Erro interno do servidor!", 500
 
-@app.route('/rotine')
-def rotine():
-    con = sqlite3.connect(DB_PATH)
-    c = con.cursor()
+@app.route("/plantas")
+def minhas_plantas():
+    json_path = os.path.join(app.root_path, "plantas.json")
 
-    error = None
+    if os.path.exists(json_path):
+        with open(json_path, "r", encoding="utf-8") as f:
+            plantas = json.load(f)
+    else:
+        plantas = []
 
+    return render_template("plantas.html", plantas=plantas)
+
+@app.route('/rotina')
+def rotina():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     username = session['username']
-    plants_json = os.path.join(BASE_DIR, 'plantas.json') 
+    plants_json = os.path.join(BASE_DIR, 'plantas.json')
 
     with open(plants_json, 'r', encoding='utf-8') as file:
         plantas = json.load(file)
 
-    user_response = execute_query("SELECT * FROM users WHERE username=?", (username,))
-    
-    if user_response:
-        return render_template('rotina.html')
-    else:
-        error = 'Erro interno do servidor!'
+    return render_template('rotina.html', plantas=plantas, username=username)
 
 @app.route('/logout')
 def logout():
-    return render_template('login.html')
+    session.pop('username', None)
+    return redirect(url_for('login'))
 
 if __name__ == "__main__":
     init_db()

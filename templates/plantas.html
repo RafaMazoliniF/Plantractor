@@ -112,50 +112,45 @@
         </div>
     </div>
 </main>
-<footer class="glass-effect mt-20 px-6 py-12 fade-in" style="animation-delay: 1s">
-  <div class="max-w-7xl mx-auto">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-      <div>
-        <div class="flex items-center space-x-3 mb-4">
-          <div class="w-10 h-10 flex items-center justify-center">
-            <img src="{{ url_for('static', filename='img/Tractor.png') }}" 
-                 alt="PlanTractor" 
-                 class="w-10 h-10 object-contain">
+ <footer class="glass-effect mt-20 px-6 py-12 fade-in">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div>
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="w-10 h-10 flex items-center justify-center">
+              <img src="{{ url_for('static', filename='img/Tractor.png') }}" alt="PlanTractor" class="w-10 h-10 object-contain">
+            </div>
+            <h3 class="text-lg font-bold text-amber-800">PlanTractor</h3>
           </div>
-          <h3 class="text-lg font-bold text-amber-800">PlanTractor</h3>
+          <p class="text-gray-600"> Transformando a forma como você cuida das suas plantas com tecnologia inteligente. </p>
         </div>
-        <p class="text-gray-600">
-          Transformando a forma como você cuida das suas plantas com tecnologia inteligente.
-        </p>
+        <div>
+          <h4 class="font-semibold mb-4 text-gray-800">Empresa</h4>
+          <ul class="space-y-2 text-gray-600">
+            <li><a href="#" class="hover:text-green-600 transition">Sobre</a></li>
+            <li><a href="#" class="hover:text-green-600 transition">Localização</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4 text-gray-800">Suporte</h4>
+          <ul class="space-y-2 text-gray-600">
+            <li><a href="#" class="hover:text-green-600 transition">Central de Ajuda</a></li>
+            <li><a href="#" class="hover:text-green-600 transition">Contato</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4 text-gray-800">Legal</h4>
+          <ul class="space-y-2 text-gray-600">
+            <li><a href="#" class="hover:text-green-600 transition">Termos de Uso</a></li>
+            <li><a href="#" class="hover:text-green-600 transition">Política de Privacidade</a></li>
+          </ul>
+        </div>
       </div>
-
-      <div>
-        <h4 class="font-semibold mb-4">Empresa</h4>
-        <ul class="space-y-2 text-gray-600">
-          <li><a href="#" class="hover:text-green-600 transition">Sobre</a></li>
-          <li><a href="#" class="hover:text-green-600 transition">Localização</a></li>
-        </ul>
-      </div>
-      
-      <div>
-        <h4 class="font-semibold mb-4">Suporte</h4>
-        <ul class="space-y-2 text-gray-600">
-          <li><a href="#" class="hover:text-green-600 transition">Central de Ajuda</a></li>
-          <li><a href="#" class="hover:text-green-600 transition">Contato</a></li>
-        </ul>
-      </div>
-    </div>
-    
-    <div class="border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center">
-      <p class="text-gray-600">&copy; 2025 PlanTractor. Todos os direitos reservados.</p>
-      <div class="flex space-x-6 mt-4 md:mt-0">
-        <a href="#" class="text-gray-600 hover:text-green-600 transition">Privacidade</a>
-        <a href="#" class="text-gray-600 hover:text-green-600 transition">Termos</a>
-        <a href="#" class="text-gray-600 hover:text-green-600 transition">Cookies</a>
+      <div class="border-t border-gray-300 pt-4 text-center text-gray-500">
+        &copy; 2025 PlanTractor. Todos os direitos reservados.
       </div>
     </div>
-  </div>
-</footer>
+  </footer>
 <script>
 
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {

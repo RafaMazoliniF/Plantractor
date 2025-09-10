@@ -20,8 +20,6 @@
       <nav class="hidden md:block">
         <ul class="flex space-x-8">
           <li><a href="/" class="nav-link font-medium text-amber-800 hover:text-amber-900">Início</a></li>
-          <li><a href="/plantas" class="nav-link font-medium text-amber-800 hover:text-amber-900">Plantas</a></li>
-          <li><a href="/rotina" class="nav-link font-medium text-amber-800 hover:text-amber-900">Rotina</a></li>
         </ul>
       </nav>
       <div class="flex items-center space-x-4">
@@ -60,9 +58,6 @@
                   </div>
                   <input type="text" id="username" name="username" value="{{ username or '' }}" required class="form-input w-full pl-10 pr-4 py-3 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-300" placeholder="Digite seu nome de usuário">
                 </div>
-                <!-- {% if error_username %}
-                  <p class="text-red-600 text-sm mt-1">{{ error_username }}</p>
-                {% endif %} -->
                 {% if error_user %}
                   <p class="text-red-600 text-sm mt-1">{{ error_user }}</p>
                 {% endif %}
@@ -159,7 +154,7 @@
     </div>
   </main>
 
-  <footer class="glass-effect mt-20 px-6 py-12 fade-in">
+   <footer class="glass-effect mt-20 px-6 py-12 fade-in">
     <div class="max-w-7xl mx-auto">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
         <div>
@@ -172,21 +167,21 @@
           <p class="text-gray-600"> Transformando a forma como você cuida das suas plantas com tecnologia inteligente. </p>
         </div>
         <div>
-          <h4 class="font-semibold mb-4 text-amber-800">Empresa</h4>
+          <h4 class="font-semibold mb-4 text-gray-800">Empresa</h4>
           <ul class="space-y-2 text-gray-600">
             <li><a href="#" class="hover:text-green-600 transition">Sobre</a></li>
             <li><a href="#" class="hover:text-green-600 transition">Localização</a></li>
           </ul>
         </div>
         <div>
-          <h4 class="font-semibold mb-4 text-amber-800">Suporte</h4>
+          <h4 class="font-semibold mb-4 text-gray-800">Suporte</h4>
           <ul class="space-y-2 text-gray-600">
             <li><a href="#" class="hover:text-green-600 transition">Central de Ajuda</a></li>
             <li><a href="#" class="hover:text-green-600 transition">Contato</a></li>
           </ul>
         </div>
         <div>
-          <h4 class="font-semibold mb-4 text-amber-800">Legal</h4>
+          <h4 class="font-semibold mb-4 text-gray-800">Legal</h4>
           <ul class="space-y-2 text-gray-600">
             <li><a href="#" class="hover:text-green-600 transition">Termos de Uso</a></li>
             <li><a href="#" class="hover:text-green-600 transition">Política de Privacidade</a></li>
