@@ -19,6 +19,8 @@ Vagrant.configure("2") do |config|
     # Clonar o repositório
     cd /home/vagrant
     git clone https://github.com/RafaMazoliniF/Plantractor.git
+    git switch -c development
+    git pull origin development
     
     # Alterar proprietário do diretório clonado
     chown -R vagrant:vagrant /home/vagrant/Plantractor
