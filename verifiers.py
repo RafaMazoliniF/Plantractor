@@ -33,7 +33,7 @@ def isPasswordValid(password):
     if not re.search(r'\d', password):
         return False
     
-    if not re.search(r'*&#@$%', password):
+    if not re.search(r'[*&#@$%]', password):
         return False
     
     return True
