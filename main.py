@@ -80,7 +80,6 @@ def login():
     username = request.form.get('username', '')
     password = request.form.get('password', '')
 
-    #print(username, password)
     if request.method == 'POST':
         user_response = execute_query("SELECT id_user, username, password FROM users WHERE username=?", (username,))
 
@@ -97,7 +96,6 @@ def login():
         else:
             error_username = 'Usuário não encontrado'
 
-    #print(error_password, error_username)
     return render_template('login.html', error_username=error_username, error_password=error_password, error=error, username=username)
 
 @app.route('/profile')
