@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerenciamento Inteligente de Plantas</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="text-gray-900">
+
+<header class="glass-effect fixed w-full top-0 z-50 fade-in">
+  <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+    <div class="flex items-center space-x-3">
+      <div class="w-12 h-12 flex items-center justify-center">
+        <img src="{{ url_for('static', filename='img/Tractor.png') }}" 
+             alt="PlanTractor" 
+             class="w-12 h-12 object-contain">
+      </div>
+      <h1 class="text-2xl font-bold text-amber-800">PlanTractor</h1>
+    </div>
+    
+   <nav class="hidden md:block">
+  <ul class="flex space-x-8">
+    <li><a href="/" class="nav-link font-medium text-amber-800 hover:text-amber-900">Início</a></li>
+    {% if logged_in %}
+      <li><a href="/plantas" class="nav-link font-medium text-amber-800 hover:text-amber-900">Plantas</a></li>
+      <li><a href="/rotina" class="nav-link font-medium text-amber-800 hover:text-amber-900">Rotina</a></li>
+    {% endif %}
+  </ul>
+</nav>
+
+
+    <div class="flex items-center space-x-4">
+      {% if not logged_in %}
+        <a href="/login" class="hidden md:block px-4 py-2 text-amber-800 font-medium hover:bg-amber-50 rounded-lg transition">
+          Entrar
+        </a>
+        <a href="/register" class="cta-button px-6 py-2 text-white font-medium rounded-lg pulse-glow">
+          Registrar
+        </a>
+      {% else %}
+ <div class="flex items-center space-x-4">
+      <div class="hidden md:block w-24"></div>
+         <a href="/logout" class=" cta-button px-6 py-2 text-white font-medium rounded-lg pulse-glow"">Sair</a>
+    </div>
+  </div>
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+<section class="pt-32 pb-20 px-6">
+  <div class="max-w-7xl mx-auto">
+    <div class="text-center mb-16 fade-in">
+      <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+        Seu jardim,
+        <span class="text-green-700">inteligente</span>
+      </h1>
+      <p class="text-xl md:text-2xl text-amber-700 mb-8 max-w-3xl mx-auto leading-relaxed scale-in" style="animation-delay: 0.3s">
+        Monitore suas plantas com tecnologia avançada, receba lembretes personalizados e veja seu jardim florescer como nunca antes.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center fade-in" style="animation-delay: 0.6s">
+        {% if not logged_in %}
+          <a href="/register" class="cta-button px-8 py-4 text-white font-semibold rounded-xl text-lg">
+            Começar
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="hero-stats rounded-2xl p-8 mb-20 fade-in" style="animation-delay: 0.8s">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-center">
+        <div class="fade-in-left" style="animation-delay: 1s">
+          <div class="stats-number">4,500+</div>
+          <p class="text-amber-700 font-medium">Plantas Monitoradas</p>
+        </div>
+        <div class="fade-in-right" style="animation-delay: 1.4s">
+          <div class="stats-number">1,200+</div>
+          <p class="text-amber-700 font-medium">Usuários Ativos</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+      <div class="glass-effect rounded-2xl p-8 card-hover fade-in-left" style="animation-delay: 1.6s">
+        <div class="feature-icon">🌱</div>
+        <h3 class="text-2xl font-bold mb-4 text-amber-900">Monitoramento</h3>
+        <p class="text-amber-700 leading-relaxed">
+          Controle o crescimento, saúde e necessidades de cada planta com um acompanhamento personalizado.
+        </p>
+      </div>
+      <div class="glass-effect rounded-2xl p-8 card-hover fade-in" style="animation-delay: 1.8s">
+        <div class="feature-icon">⏰</div>
+        <h3 class="text-2xl font-bold mb-4 text-amber-900">Lembretes Inteligentes</h3>
+        <p class="text-amber-700 leading-relaxed">
+          Receba notificações personalizadas para regar, fertilizar e cuidar de suas plantas no momento certo.
+        </p>
+      </div>
+      <div class="glass-effect rounded-2xl p-8 card-hover fade-in-right" style="animation-delay: 2s">
+        <div class="feature-icon">📚</div>
+        <h3 class="text-2xl font-bold mb-4 text-amber-900">Base de Conhecimento</h3>
+        <p class="text-amber-700 leading-relaxed">
+          Adicione informações detalhadas sobre suas espécies de plantas e suas necessidades específicas.
+        </p>
+      </div>
+      <div class="glass-effect rounded-2xl p-8 card-hover fade-in-left" style="animation-delay: 2.2s">
+        <div class="feature-icon">📸</div>
+        <h3 class="text-2xl font-bold mb-4 text-amber-900">Histórico Visual</h3>
+        <p class="text-amber-700 leading-relaxed">
+          Capture e organize fotos do crescimento das suas plantas, criando um timeline visual completo.
+        </p>
+      </div>
+      <div class="glass-effect rounded-2xl p-8 card-hover fade-in" style="animation-delay: 2.4s">
+        <div class="feature-icon">🌤️</div>
+        <h3 class="text-2xl font-bold mb-4 text-amber-900">Integração Climática</h3>
+        <p class="text-amber-700 leading-relaxed">
+          Ajuste automaticamente os cuidados baseado nas condições climáticas da sua região.
+        </p>
+      </div>
+      <div class="glass-effect rounded-2xl p-8 card-hover fade-in-right" style="animation-delay: 2.6s">
+        <div class="feature-icon">👥</div>
+        <h3 class="text-2xl font-bold mb-4 text-amber-900">Comunidade</h3>
+        <p class="text-amber-700 leading-relaxed">
+          Conecte-se com outros jardineiros, compartilhe experiências e tire dúvidas com especialistas.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+ <footer class="glass-effect mt-20 px-6 py-12 fade-in">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div>
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="w-10 h-10 flex items-center justify-center">
+              <img src="{{ url_for('static', filename='img/Tractor.png') }}" alt="PlanTractor" class="w-10 h-10 object-contain">
+            </div>
+            <h3 class="text-lg font-bold text-amber-800">PlanTractor</h3>
+          </div>
+          <p class="text-gray-600"> Transformando a forma como você cuida das suas plantas com tecnologia inteligente. </p>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4 text-gray-800">Empresa</h4>
+          <ul class="space-y-2 text-gray-600">
+            <li><a href="#" class="hover:text-green-600 transition">Sobre</a></li>
+            <li><a href="#" class="hover:text-green-600 transition">Localização</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4 text-gray-800">Suporte</h4>
+          <ul class="space-y-2 text-gray-600">
+            <li><a href="#" class="hover:text-green-600 transition">Central de Ajuda</a></li>
+            <li><a href="#" class="hover:text-green-600 transition">Contato</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4 text-gray-800">Legal</h4>
+          <ul class="space-y-2 text-gray-600">
+            <li><a href="#" class="hover:text-green-600 transition">Termos de Uso</a></li>
+            <li><a href="#" class="hover:text-green-600 transition">Política de Privacidade</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-300 pt-4 text-center text-gray-500">
+        &copy; 2025 PlanTractor. Todos os direitos reservados.
+      </div>
+    </div>
+  </footer>
+
+<script>
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
+    e.preventDefault();
+    document.querySelector(this.getAttribute('href')).scrollIntoView({
+      behavior: 'smooth'
+    });
+  });
+});
+
+const mobileMenuButton = document.querySelector('.md\\:hidden');
+const nav = document.querySelector('nav');
+
+if (mobileMenuButton) {
+  mobileMenuButton.addEventListener('click', () => {
+    nav.classList.toggle('hidden');
+  });
+}
+
+window.addEventListener('scroll', () => {
+  const scrolled = window.pageYOffset;
+  const parallax = document.querySelector('.hero-stats');
+  if (parallax) {
+    const speed = scrolled * 0.5;
+    parallax.style.transform = `translateY(${speed}px)`;
+  }
+});
+</script>
+
+</body>
+</html>
