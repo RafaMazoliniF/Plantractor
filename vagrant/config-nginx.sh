@@ -1,7 +1,6 @@
 #!/bin/bash
 
 echo "Instalando Nginx..."
-sudo apt update -y
 sudo DEBIAN_FRONTEND=noninteractive apt install nginx -y
 
 echo "Configurando Nginx..."
