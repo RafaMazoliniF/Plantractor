@@ -1,39 +1,46 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 #from flask_login import login_required
 from verifiers import isUsernameValid, isPasswordValid
-import os, sqlite3, json
+import os, sqlite3, json, requests
+
+class RemoteSQLite:
+    def __init__(self, db_api_url):
+        self.api_url = db_api_url
+    
+    def execute_query(self, query, params=None):
+        if params is None:
+            params = []
+            
+        payload = {
+            'query': query,
+            'params': params
+        }
+        
+        try:
+            response = requests.post(
+                f"{self.api_url}/query",
+                json=payload,
+                timeout=30
+            )
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            return {'success': False, 'error': f'Connection error: {str(e)}'}
 
 app = Flask(__name__)
 app.secret_key = "plantractor"
 
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__)) 
-DB_PATH = os.path.join(BASE_DIR, 'database.db') 
+DB_API_URL = "http://10.0.1.30:5001"
+db = RemoteSQLite(DB_API_URL)
 
 def init_db():
-    con = sqlite3.connect(DB_PATH)
-    c = con.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS users (id_user INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
-    con.commit()
-    con.close()
-
-def execute_query(query, params=None, fetchone=True):
-    con = sqlite3.connect(DB_PATH)
-    con.row_factory = sqlite3.Row
-    c = con.cursor()
+    result = db.execute_query("CREATE TABLE IF NOT EXISTS users (id_user INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+    if result['success']:
+        return 
     
-    if params:
-        c.execute(query, params)
-    else:
-        c.execute(query)
-    
-    if query.strip().upper().startswith('SELECT'):
-        response = c.fetchone() if fetchone else c.fetchall()
-    else:
-        con.commit()
-        response = c.rowcount
-    
-    con.close()
-    return response
+    raise RuntimeError("Não foi possivel se iniciar o banco de dados")
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -57,14 +64,14 @@ def register():
         elif not isPasswordValid(password):
             error_password = 'Senha inválida!'
         else:
-            user_response = execute_query("SELECT * FROM users WHERE username=?", (username,))
+            user_response = db.execute_query("SELECT * FROM users WHERE username=?", [username])
 
-            if user_response:  # já existe
+            if user_response['success'] and user_response.get('data'):  # já existe
                 error_user = 'Usuário já existe!'
             else:
-                rows_updated = execute_query("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+                insert_response = db.execute_query("INSERT INTO users (username, password) VALUES (?, ?)", [username, password])
 
-                if rows_updated > 0:
+                if insert_response['success']:
                     success_message = 'Conta criada com sucesso!'
                 else:
                     error = 'Erro interno do servidor !'
@@ -81,12 +88,12 @@ def login():
     password = request.form.get('password', '')
 
     if request.method == 'POST':
-        user_response = execute_query("SELECT id_user, username, password FROM users WHERE username=?", (username,))
+        user_response = db.execute_query("SELECT id_user, username, password FROM users WHERE username=?", [username])
 
-        if user_response:
-            #user = user_response[0] #primeira coisa
-            db_username = user_response['username']
-            db_password = user_response['password']
+        if user_response['success'] and user_response.get('data'):
+            user_data = user_response['data'][0] if isinstance(user_response['data'], list) else user_response['data']
+            db_username = user_data['username']
+            db_password = user_data['password']
 
             if password == db_password:
                 session['username'] = db_username
@@ -105,9 +112,9 @@ def profile():
 
     username = session['username']
 
-    user_response = execute_query("SELECT * FROM users WHERE username=?", (username,))
+    user_response = db.execute_query("SELECT * FROM users WHERE username=?", [username])
     
-    if user_response:
+    if user_response['success'] and user_response.get('data'):
         return render_template('perfil.html', username=username)
     else:
         return "Erro interno do servidor!", 500
