@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, time
 #from flask_login import login_required
 from verifiers import isUsernameValid, isPasswordValid
 import os, sqlite3, json, requests
@@ -153,5 +153,10 @@ def logout():
     return redirect(url_for('login'))
 
 if __name__ == "__main__":
-    init_db()
+    for i in range(10):
+        try:
+            init_db()
+        finally:
+            time.sleep(1)
+        
     app.run(host="0.0.0.0", port=5000, debug=True)
