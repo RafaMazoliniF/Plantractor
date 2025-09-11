@@ -59,6 +59,9 @@ def register():
     password = request.form.get('password', '')
 
     if request.method == 'POST':
+        print(f"Register POST - Username: '{username}', Password: '{password}'")  # Debug
+        print(f"Username valid: {isUsernameValid(username)}, Password valid: {isPasswordValid(password)}")  # Debug
+        
         if not isUsernameValid(username):
             error_username = 'Usuário inválido!'
         elif not isPasswordValid(password):
@@ -71,7 +74,7 @@ def register():
             else:
                 insert_response = db.execute_query("INSERT INTO users (username, password) VALUES (?, ?)", [username, password])
 
-                if insert_response['success']:
+                if insert_response['success'] and insert_response['data']['affected_rows'] > 0:
                     success_message = 'Conta criada com sucesso!'
                 else:
                     error = 'Erro interno do servidor !'
