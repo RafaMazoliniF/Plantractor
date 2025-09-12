@@ -1,162 +1,148 @@
-from flask import Flask, render_template, request, redirect, url_for, session, time
-#from flask_login import login_required
-from verifiers import isUsernameValid, isPasswordValid
-import os, sqlite3, json, requests
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
 
-class RemoteSQLite:
-    def __init__(self, db_api_url):
-        self.api_url = db_api_url
+Vagrant.configure("2") do |config|
+  # Box base para todas as VMs
+  config.vm.box = "generic/ubuntu2204"
+  
+  config.vm.provider :libvirt do |libvirt|
+    libvirt.memory = 1024
+    libvirt.cpus = 1
+  end
+
+  # Script de provisionamento comum para todas as VMs
+  config.vm.provision "shell", inline: <<-SHELL
+    # Atualizar sistema e instalar git
+    apt-get update
+    apt-get install -y git
     
-    def execute_query(self, query, params=None):
-        if params is None:
-            params = []
-            
-        payload = {
-            'query': query,
-            'params': params
-        }
-        
-        try:
-            response = requests.post(
-                f"{self.api_url}/query",
-                json=payload,
-                timeout=30
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            return {'success': False, 'error': f'Connection error: {str(e)}'}
-
-app = Flask(__name__)
-app.secret_key = "plantractor"
-
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__)) 
-DB_API_URL = "http://10.0.1.30:5001"
-db = RemoteSQLite(DB_API_URL)
-
-def init_db():
-    result = db.execute_query("CREATE TABLE IF NOT EXISTS users (id_user INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
-    if result['success']:
-        return 
+    # Clonar o repositório
+    cd /home/vagrant
+    git clone https://github.com/RafaMazoliniF/Plantractor.git
+    cd Plantractor
+    git switch -c development
+    git pull origin development
     
-    raise RuntimeError("Não foi possivel se iniciar o banco de dados")
+    # Alterar proprietário do diretório clonado
+    chown -R vagrant:vagrant /home/vagrant/Plantractor
+  SHELL
 
-@app.route('/', methods=['GET', 'POST'])
-def home():
-    #logged_in = 'username' in session
-    return render_template('index.html')
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    error_username = None
-    error_password = None
-    error_user = None
-    error = None
-    success_message = None
-
-    username = request.form.get('username', '')
-    password = request.form.get('password', '')
-
-    if request.method == 'POST':
-        print(f"Register POST - Username: '{username}', Password: '{password}'")  # Debug
-        print(f"Username valid: {isUsernameValid(username)}, Password valid: {isPasswordValid(password)}")  # Debug
-        
-        if not isUsernameValid(username):
-            error_username = 'Usuário inválido!'
-        elif not isPasswordValid(password):
-            error_password = 'Senha inválida!'
-        else:
-            user_response = db.execute_query("SELECT * FROM users WHERE username=?", [username])
-
-            if user_response['success'] and user_response.get('data'):  # já existe
-                error_user = 'Usuário já existe!'
-            else:
-                insert_response = db.execute_query("INSERT INTO users (username, password) VALUES (?, ?)", [username, password])
-
-                if insert_response['success'] and insert_response['data']['affected_rows'] > 0:
-                    success_message = 'Conta criada com sucesso!'
-                else:
-                    error = 'Erro interno do servidor !'
-
-    return render_template('register.html', error_username=error_username, error_password=error_password, error_user=error_user, error=error, success_message=success_message, username=username)
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    error_username = None
-    error_password = None
-    error = None
-
-    username = request.form.get('username', '')
-    password = request.form.get('password', '')
-
-    if request.method == 'POST':
-        user_response = db.execute_query("SELECT id_user, username, password FROM users WHERE username=?", [username])
-
-        if user_response['success'] and user_response.get('data'):
-            user_data = user_response['data'][0] if isinstance(user_response['data'], list) else user_response['data']
-            db_username = user_data['username']
-            db_password = user_data['password']
-
-            if password == db_password:
-                session['username'] = db_username
-                return redirect(url_for('profile'))
-            else:
-                error_password = 'Senha incorreta!'
-        else:
-            error_username = 'Usuário não encontrado'
-
-    return render_template('login.html', error_username=error_username, error_password=error_password, error=error, username=username)
-
-@app.route('/profile')
-def profile():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-
-    username = session['username']
-
-    user_response = db.execute_query("SELECT * FROM users WHERE username=?", [username])
+  # VM 1 - Mantém internet (proxy)
+  config.vm.define "vm1" do |vm1|
+    vm1.vm.hostname = "vm1"
+    vm1.vm.network "private_network", 
+                   ip: "10.0.1.10",
+                   type: "dhcp",
+                   libvirt__network_name: "vagrant-private-network",
+                   libvirt__dhcp_enabled: false,
+                   libvirt__forward_mode: "nat"
     
-    if user_response['success'] and user_response.get('data'):
-        return render_template('perfil.html', username=username)
-    else:
-        return "Erro interno do servidor!", 500
+    vm1.vm.provider :libvirt do |v|
+      v.memory = 1024
+      v.cpus = 1
+    end
+    vm1.vm.provision "shell", inline: <<-SHELL
+      # Instalar Nginx
+      sudo apt install -y nginx
+      
+      # Parar o Nginx se estiver rodando
+      sudo systemctl stop nginx
+      
+      # Remover configuração padrão que causa conflito
+      sudo rm -f /etc/nginx/sites-enabled/default
+      
+      # Criar arquivo de configuração do proxy
+      sudo tee /etc/nginx/conf.d/proxy.conf > /dev/null << 'EOL'
+server {
+    listen 80;
+    server_name _;
+    location / {
+        proxy_pass http://10.0.1.20:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+EOL
+      
+      # Testar a configuração
+      sudo nginx -t
+      
+      # Iniciar e habilitar o Nginx
+      sudo systemctl start nginx
+      sudo systemctl enable nginx
+    SHELL
+  end
 
-@app.route("/plantas")
-def minhas_plantas():
-    json_path = os.path.join(app.root_path, "plantas.json")
-
-    if os.path.exists(json_path):
-        with open(json_path, "r", encoding="utf-8") as f:
-            plantas = json.load(f)
-    else:
-        plantas = []
-
-    return render_template("plantas.html", plantas=plantas)
-
-@app.route('/rotina')
-def rotina():
-    if 'username' not in session:
-        return redirect(url_for('login'))
+  # VM 2 - Sem internet após instalação
+  config.vm.define "vm2" do |vm2|
+    vm2.vm.hostname = "vm2"
+    vm2.vm.network "private_network", 
+                   ip: "10.0.1.20",
+                   type: "dhcp",
+                   libvirt__network_name: "vagrant-private-network",
+                   libvirt__dhcp_enabled: false,
+                   libvirt__forward_mode: "nat"
     
-    username = session['username']
-    plants_json = os.path.join(BASE_DIR, 'plantas.json')
+    vm2.vm.provider :libvirt do |v|
+      v.memory = 1024
+      v.cpus = 1
+    end
 
-    with open(plants_json, 'r', encoding='utf-8') as file:
-        plantas = json.load(file)
+    vm2.vm.provision "shell", inline: <<-SHELL
+      # Instalar dependências (com internet)
+      apt-get install -y python3 python3-pip
+      if [ -f /home/vagrant/Plantractor/web/requirements.txt ]; then
+        pip3 install -r /home/vagrant/Plantractor/web/requirements.txt
+      fi
+    SHELL
 
-    return render_template('rotina.html', plantas=plantas, username=username)
+    # Desabilitar internet após instalação
+    vm2.vm.provision "shell", run: "always", inline: <<-SHELL
+      # Remover rota padrão (default gateway) para bloquear internet
+      sudo ip route del default
+      
+      # Opcional: bloquear acesso externo com iptables
+      sudo iptables -P OUTPUT DROP
+      sudo iptables -A OUTPUT -d 10.0.1.0/24 -j ACCEPT  # Permitir apenas rede local
+      sudo iptables -A OUTPUT -o lo -j ACCEPT           # Permitir loopback
+    SHELL
+  end
 
-@app.route('/logout')
-def logout():
-    session.pop('username', None)
-    return redirect(url_for('login'))
+  # VM 3 - Sem internet após instalação
+  config.vm.define "vm3" do |vm3|
+    vm3.vm.hostname = "vm3"
+    vm3.vm.network "private_network", 
+                   ip: "10.0.1.30",
+                   type: "dhcp",
+                   libvirt__network_name: "vagrant-private-network",
+                   libvirt__dhcp_enabled: false,
+                   libvirt__forward_mode: "nat"
+    
+    vm3.vm.provider :libvirt do |v|
+      v.memory = 1024
+      v.cpus = 1
+    end
 
-if __name__ == "__main__":
-    for i in range(10):
-        try:
-            init_db()
-        finally:
-            time.sleep(1)
-        
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    vm3.vm.provision "shell", inline: <<-SHELL
+      # Instalar dependências (com internet)
+      apt-get install -y python3 python3-pip
+      if [ -f /home/vagrant/Plantractor/database/requirements.txt ]; then
+        pip3 install -r /home/vagrant/Plantractor/database/requirements.txt
+      fi
+      sudo ufw allow from 10.0.1.20 to any port 5001
+    SHELL
+
+    # Desabilitar internet após instalação
+    vm3.vm.provision "shell", run: "always", inline: <<-SHELL
+      # Remover rota padrão (default gateway) para bloquear internet
+      sudo ip route del default
+      
+      # Opcional: bloquear acesso externo com iptables
+      sudo iptables -P OUTPUT DROP
+      sudo iptables -A OUTPUT -d 10.0.1.0/24 -j ACCEPT  # Permitir apenas rede local
+      sudo iptables -A OUTPUT -o lo -j ACCEPT           # Permitir loopback
+    SHELL
+  end
+end
