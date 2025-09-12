@@ -96,10 +96,11 @@ EOL
       if [ -f /home/vagrant/Plantractor/web/requirements.txt ]; then
         pip3 install -r /home/vagrant/Plantractor/web/requirements.txt
       fi
+
     SHELL
 
     # Desabilitar internet após instalação
-    vm2.vm.provision "shell", run: "always", inline: <<-SHELL
+    vm2.vm.provision "shell", run: "always", inline: <<-SHELL    
       # Remover rota padrão (default gateway) para bloquear internet
       sudo ip route del default
       
@@ -132,6 +133,7 @@ EOL
         pip3 install -r /home/vagrant/Plantractor/database/requirements.txt
       fi
       sudo ufw allow from 10.0.1.20 to any port 5001
+
     SHELL
 
     # Desabilitar internet após instalação
