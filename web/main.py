@@ -31,7 +31,6 @@ class RemoteSQLite:
 app = Flask(__name__)
 app.secret_key = "plantractor"
 
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__)) 
 DB_API_URL = os.getenv("DB_API_URL", "http://database:5001")
 db = RemoteSQLite(DB_API_URL)
