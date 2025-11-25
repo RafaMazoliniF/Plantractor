@@ -14,7 +14,7 @@ def test_username_invalid_too_short():
     assert isUsernameValid("F") is False
 
 def test_password_valid():
-    assert isPasswordValid("Vai@Curintia") is True
+    assert isPasswordValid("Vai@Curintia123") is True
 
 def test_password_invalid_missing_special_char():
     assert isPasswordValid("Curintia123") is False
