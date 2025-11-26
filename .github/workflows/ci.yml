@@ -14,11 +14,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # --- ETAPA 1: TESTES UNITÁRIOS (Rápido, sem Docker) ---
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
+
+      # UNIT TESTS
 
       - name: Install Dependencies (Unit)
         run: |
@@ -29,23 +30,21 @@ jobs:
           pip install -r database/requirements.txt
 
       - name: Run Unit Tests (7 tests)
-        # Adiciona pastas ao PYTHONPATH para imports funcionarem (ex: from web.verifiers import ...)
         run: |
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           pytest tests/unit -v
 
-      # --- ETAPA 2: TESTES DE INTEGRAÇÃO (Com Docker) ---
+      # INTEGRATION TESTS
       - name: Start Containers
         run: docker compose up -d --build
 
-      - name: Wait for Services Healthy
-        run: sleep 15  # Espera simples para garantir que Nginx e Flask subiram
+      - name: Wait for Servers
+        run: sleep 15
 
       - name: Install Test Dependencies (Integration)
-        run: pip install requests  # Geralmente necessário para testar APIs externamente
+        run: pip install requests
 
       - name: Run Integration Tests (3 tests)
-        # Os testes devem bater em http://localhost:80 (Web via Proxy) ou http://localhost:5001 (DB)
         run: pytest tests/integration -v
 
       - name: Stop Containers
