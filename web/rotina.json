@@ -1,0 +1,21 @@
+[
+  {
+    "planta": "Samambaia",
+    "tarefa": "Regar",
+    "frequencia": "Diariamente",
+    "horario": "08:00"
+  },
+  {
+    "planta": "Cacto",
+    "tarefa": "Regar",
+    "frequencia": "Uma vez por semana",
+    "horario": "09:00"
+  },
+  {
+    "planta": "Orquídea",
+    "tarefa": "Podar",
+    "frequencia": "Quinzenalmente",
+    "horario": "10:00"
+  }
+
+]

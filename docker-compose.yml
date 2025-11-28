@@ -1,0 +1,31 @@
+services:
+  proxy:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - web
+
+  web:
+    build: ./web
+    environment:
+      - DB_API_URL=http://database:5001
+    volumes:
+      - ./web:/app
+    depends_on:
+      - database
+    ports:
+      - "5000:5000"
+
+  database:
+    build: ./database
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./database:/app
+      - db_data:/app/data 
+
+volumes:
+  db_data:

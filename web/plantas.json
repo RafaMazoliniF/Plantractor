@@ -1,0 +1,17 @@
+[
+  {
+    "nome": "Samambaia",
+    "descricao": "Adora sombra e precisa de rega frequente.",
+    "foto": "Samambaia.jpg"
+  },
+  {
+    "nome": "Cacto",
+    "descricao": "Planta resistente que gosta de sol e pouca água.",
+    "foto": "Cacto.jpg"
+  },
+  {
+    "nome": "Orquídea",
+    "descricao": "Precisa de luz indireta e rega moderada.",
+    "foto": "Orquidea.jpg"
+  }
+]
